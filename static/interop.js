@@ -1,4 +1,4 @@
-/*global Elm, firebase, firebaseConfig */
+    /*global Elm, firebase, firebaseConfig */
 
 (function () {
     // Start the Elm App.

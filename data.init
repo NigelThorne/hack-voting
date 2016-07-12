@@ -1,0 +1,16 @@
+{
+  "events" : {
+    "alpha" : {
+      "projects" : {
+        "one" : {
+          "description" : "description",
+          "name" : "one"
+        },
+        "two" : {
+          "description" : "Lets factor out the firebase code into a library",
+          "name" : "Elm firebase library"
+        }
+      }
+    }
+  }
+}

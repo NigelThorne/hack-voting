@@ -7,6 +7,7 @@ $ cd dist
 $ firebase serve
 ...
 $ firebase deploy
+$ firebase database:set / data.init
 $ firebase open hosting:site
 #+END_SRC
 
@@ -28,3 +29,5 @@ have names and descriptions.
 
 There's a list of votes, keyed by username. It lists your top three
 votes.
+
+
