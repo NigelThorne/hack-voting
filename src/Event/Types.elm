@@ -12,6 +12,7 @@ type alias ProjectId =
 type alias Event =
     { projects : Dict ProjectId Project
     , votes : Dict String Vote
+    , showVotes : Bool
     }
 
 
@@ -23,22 +24,16 @@ type alias Project =
 
 type alias Vote =
     { first : Maybe ProjectId
-    , second : Maybe ProjectId
-    , third : Maybe ProjectId
     }
 
 
 type Priority
     = First
-    | Second
-    | Third
 
 
 priorities : List Priority
 priorities =
     [ First
-    , Second
-    , Third
     ]
 
 
@@ -47,12 +42,6 @@ voteN vote priority =
     case priority of
         First ->
             vote.first
-
-        Second ->
-            vote.second
-
-        Third ->
-            vote.third
 
 
 type alias Model =
@@ -67,3 +56,4 @@ type Msg
     | EventError Firebase.Error
     | VoteError Firebase.Error
     | VoteFor Priority (Maybe ProjectId)
+    | SetVotingEnded Bool

@@ -24,7 +24,7 @@
 
 
     // Event.
-    var eventPath = firebase.database().ref('/events/alpha');
+    var eventPath = firebase.database().ref('/events/alpha'+ window.location.pathname);
 
     app.ports.eventListen.subscribe(function () {
         console.log('LISTENING', eventPath.toString());
@@ -55,5 +55,13 @@
 
         path.set(vote)
             .catch(app.ports.voteSendError.send);
+    });
+
+    // Voting.
+    var showVotesPath = eventPath.child('showVotes');
+
+    app.ports.voteEndedSend.subscribe(function (show) {
+        showVotesPath.set(show)
+            .catch(app.ports.voteEndedSendError.send);
     });
 }());

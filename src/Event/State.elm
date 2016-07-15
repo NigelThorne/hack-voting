@@ -12,8 +12,6 @@ import Json.Decode as Decode
 initialVote : Vote
 initialVote =
     { first = Nothing
-    , second = Nothing
-    , third = Nothing
     }
 
 
@@ -26,7 +24,6 @@ initialState =
     , eventListen ()
     )
 
-
 subscriptions : Model -> Sub Msg
 subscriptions _ =
     Sub.batch
@@ -34,7 +31,6 @@ subscriptions _ =
         , eventError EventError
         , voteSendError VoteError
         ]
-
 
 update : User -> Msg -> Model -> ( Model, Cmd Msg )
 update user msg model =
@@ -66,16 +62,20 @@ update user msg model =
                             case priority of
                                 First ->
                                     { oldVote | first = projectId }
-
-                                Second ->
-                                    { oldVote | second = projectId }
-
-                                Third ->
-                                    { oldVote | third = projectId }
                     in
                         ( model
                         , voteSend ( user.uid, newVote )
                         )
+
+                _ ->
+                    ( model, Cmd.none )
+
+        SetVotingEnded isEnded ->
+            case model.event of
+                Success event ->
+                    ( model
+                    , voteEndedSend ( isEnded)
+                    )
 
                 _ ->
                     ( model, Cmd.none )

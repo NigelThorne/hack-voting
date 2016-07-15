@@ -60,7 +60,7 @@ yourVote userVote =
 projectsView : Vote -> Dict String Project -> Html Msg
 projectsView userVote projects =
     div []
-        [ h2 [] [ text "Projects" ]
+        [ h2 [] [ text "Estimate" ]
         , div [ class "list-group" ]
             (projects
                 |> Dict.toList
@@ -87,13 +87,7 @@ priorityString priority =
     in
         case priority of
             First ->
-                builder "1" "st"
-
-            Second ->
-                builder "2" "nd"
-
-            Third ->
-                builder "3" "rd"
+                builder "<--" ""
 
 
 voteButtons : Vote -> ProjectId -> Html Msg
@@ -150,7 +144,7 @@ tally =
             Dict.empty
 
 
-votesView : Event -> Html msg
+votesView : Event -> Html Msg
 votesView event =
     let
         voteCounts =
@@ -165,19 +159,35 @@ votesView event =
         tallied =
             tally event.votes
                 |> Dict.toList
+
+        showVotes = event.showVotes
     in
         div []
             [ h2 [] [ text "Votes" ]
-            , if List.isEmpty tallied then
-                empty
-              else
-                well
-                    (tallied
-                        |> List.map (voteBar event.projects maxCount)
-                        |> List.intersperse (hr [] [])
-                    )
+            ,   if showVotes then
+                    if List.isEmpty tallied then
+                        empty
+                    else
+                        well
+                            (tallied
+                                |> List.map (voteBar event.projects maxCount)
+                                |> List.intersperse (hr [] [])
+                            )
+                else
+                    text "hidden"                        
+            , voteShowToggleButton event.showVotes
             ]
 
+voteShowToggleButton : Bool -> Html Msg
+voteShowToggleButton showing =
+    button
+        [ classList
+            [ ( "btn", True )
+            ]
+        , onClick
+            ( SetVotingEnded (not showing) )
+        ]
+        [ text "Toggle Results" ]
 
 voteBar : Dict ProjectId Project -> Int -> ( ProjectId, Int ) -> Html msg
 voteBar projects maxCount ( projectId, voteCount ) =
