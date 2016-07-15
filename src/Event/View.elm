@@ -160,10 +160,14 @@ votesView event =
             tally event.votes
                 |> Dict.toList
 
+        totalCount = voteCounts
+                |> Dict.values
+                |> List.foldl (\v acc-> v + acc) 0
+
         showVotes = event.showVotes
     in
         div []
-            [ h2 [] [ text "Votes" ]
+            [ h2 [] [ text ((toString totalCount) ++" Votes") ]
             ,   if showVotes then
                     if List.isEmpty tallied then
                         empty
@@ -174,7 +178,7 @@ votesView event =
                                 |> List.intersperse (hr [] [])
                             )
                 else
-                    text "hidden"                        
+                    div [] [text "Voting in progress ..."]
             , voteShowToggleButton event.showVotes
             ]
 

@@ -34,4 +34,4 @@ decodeEvent =
     decode Event
         |> optional "projects" (dict decodeProject) Dict.empty
         |> optional "votes" (dict decodeVote) Dict.empty
-        |> required "showVotes" bool
+        |> optional "showVotes" (bool) False
