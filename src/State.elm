@@ -1,6 +1,6 @@
 module State exposing (..)
 
-import Event.State as Event
+import Room.State as Room
 import Exts.RemoteData as RemoteData exposing (..)
 import Firebase.Auth as Firebase
 import Response exposing (..)
@@ -10,7 +10,7 @@ import Types exposing (..)
 initialState : ( Model, Cmd Msg )
 initialState =
     ( { auth = Loading
-      , eventModel = Nothing
+      , roomModel = Nothing
       }
     , Cmd.none
     )
@@ -20,8 +20,8 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
         [ Sub.map AuthResponse Firebase.authResponse
-        , model.eventModel
-            |> Maybe.map (Event.subscriptions >> Sub.map EventMsg)
+        , model.roomModel
+            |> Maybe.map (Room.subscriptions >> Sub.map RoomMsg)
             |> Maybe.withDefault Sub.none
         ]
 
@@ -39,16 +39,16 @@ update msg model =
                 newModel =
                     { model | auth = response }
             in
-                Event.initialState
-                    |> mapModel (\eventModel -> { newModel | eventModel = Just eventModel })
-                    |> mapCmd EventMsg
+                Room.initialState
+                    |> mapModel (\roomModel -> { newModel | roomModel = Just roomModel })
+                    |> mapCmd RoomMsg
 
-        EventMsg submsg ->
-            case ( model.auth, model.eventModel ) of
-                ( Success user, Just eventModel ) ->
-                    Event.update user submsg eventModel
-                        |> mapModel (\eventModel -> { model | eventModel = Just eventModel })
-                        |> mapCmd EventMsg
+        RoomMsg submsg ->
+            case ( model.auth, model.roomModel ) of
+                ( Success user, Just roomModel ) ->
+                    Room.update user submsg roomModel
+                        |> mapModel (\roomModel -> { model | roomModel = Just roomModel })
+                        |> mapCmd RoomMsg
 
                 _ ->
                     ( model, Cmd.none )

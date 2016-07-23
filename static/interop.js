@@ -1,4 +1,4 @@
-    /*global Elm, firebase, firebaseConfig */
+        /*global Elm, firebase, firebaseConfig */
 
 (function () {
     // Start the Elm App.
@@ -22,46 +22,69 @@
             .onAuthStateChanged(app.ports.authStateChanged.send);
     }, 1);
 
+    var database = firebase.database();
 
-    // Event.
-    var eventPath = firebase.database().ref('/events/alpha'+ window.location.pathname);
+    var deckPath = database.ref('/deck');
+    var roomPath = database.ref('/rooms/'+ window.location.pathname);
 
-    app.ports.eventListen.subscribe(function () {
-        console.log('LISTENING', eventPath.toString());
-        eventPath.on(
+    app.ports.roomListen.subscribe(function () {
+        console.log('LISTENING', roomPath.toString());
+        roomPath.on(
             'value',
             function(snapshot) {
                 var rawValue = snapshot.val();
                 console.log('HEARD', rawValue);
 
-                app.ports.event.send(JSON.stringify(rawValue));
+                app.ports.room.send(JSON.stringify(rawValue));
             },
-            app.ports.eventError.send
+            app.ports.roomError.send
         );
+        console.log('LISTENING DECK', deckPath.toString());
+        deckPath.on(
+            'value',
+            function(snapshot) {
+                var rawValue = snapshot.val();
+                console.log('HEARD DECK', rawValue);
+                app.ports.deck.send(JSON.stringify(rawValue));
+            },
+            app.ports.deckError.send
+        );
+  });
+
+    app.ports.roomSilence.subscribe(function () {
+        console.log('SILENCING', roomPath.toString());
+        roomPath.off('value');
+        deckPath.off('value');
     });
 
-    app.ports.eventSilence.subscribe(function () {
-        console.log('SILENCING', eventPath.toString());
-        eventPath.off('value');
+    // Show Votes.
+    var showVotesPath = roomPath.child('showVotes');
+
+    app.ports.votingCompleteSend.subscribe(function (show) {
+        showVotesPath.set(show)
+            .catch(app.ports.votingCompleteSendError.send);
     });
 
     // Voting.
-    var votePath = eventPath.child('votes');
+    var votePath = roomPath.child('votes');
 
     app.ports.voteSend.subscribe(function (msg) {
         var uid = msg[0],
             vote = msg[1],
             path = votePath.child(uid);
 
+        showVotesPath.set(false)
+            .catch(app.ports.votingCompleteSendError.send);
         path.set(vote)
             .catch(app.ports.voteSendError.send);
     });
 
-    // Voting.
-    var showVotesPath = eventPath.child('showVotes');
+    app.ports.topicSend.subscribe(function (msg) {
+        var topic = msg,
+            path = roomPath.child('topic');
 
-    app.ports.voteEndedSend.subscribe(function (show) {
-        showVotesPath.set(show)
-            .catch(app.ports.voteEndedSendError.send);
+        path.set(topic)
+            .catch(app.ports.voteSendError.send);
     });
+
 }());

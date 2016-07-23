@@ -7,7 +7,7 @@ module Test exposing (main)
 
 import ElmTest exposing (..)
 import StateTest
-
+--import Console
 
 tests : Test
 tests =
@@ -20,3 +20,8 @@ tests =
 main : Program Never
 main =
     runSuite tests
+
+
+--port runner : Signal (Task.Task x ())
+--port runner =
+--    Console.run (consoleRunner tests)

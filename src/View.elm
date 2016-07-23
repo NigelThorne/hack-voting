@@ -1,6 +1,6 @@
 module View exposing (root)
 
-import Event.View
+import Room.View
 import Exts.Html.Bootstrap exposing (..)
 import Exts.RemoteData exposing (..)
 import Html exposing (..)
@@ -23,13 +23,13 @@ root model =
                 [ text "Log In" ]
             , case model.auth of
                 Success user ->
-                    case model.eventModel of
+                    case model.roomModel of
                         Nothing ->
                             text "Initialising."
 
-                        Just eventModel ->
-                            Event.View.root user eventModel
-                                |> Html.map EventMsg
+                        Just roomModel ->
+                            Room.View.root user roomModel
+                                |> Html.map RoomMsg
 
                 Failure err ->
                     div [ class "alert alert-danger" ] [ text err.message ]

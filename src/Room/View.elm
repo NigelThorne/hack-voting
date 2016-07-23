@@ -1,8 +1,8 @@
-module Event.View exposing (root)
+module Room.View exposing (root)
 
 import Dict exposing (Dict)
-import Event.State exposing (..)
-import Event.Types exposing (..)
+import Room.State exposing (..)
+import Room.Types exposing (..)
 import Exts.Html.Bootstrap exposing (..)
 import Exts.RemoteData exposing (..)
 import Firebase.Auth exposing (User)
@@ -10,46 +10,56 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 
-
+-- dealing with authorization 
 root : User -> Model -> Html Msg
 root user model =
-    case model.event of
-        Success event ->
-            eventView user event
+    case model.room of
+        Success room ->
+            roomView user room model
 
         Failure err ->
             div [ class "alert alert-danger" ] [ text err ]
 
         Loading ->
-            h2 [] [ i [] [ text "Waiting for event data..." ] ]
+            h2 [] [ i [] [ text "Waiting for room data..." ] ]
 
         NotAsked ->
-            h2 [] [ text "Initialising." ]
+            h2 [] [ text "Initialising Room." ]
 
 
-eventView : User -> Event -> Html Msg
-eventView user event =
+roomView : User -> Room -> Model -> Html Msg
+roomView user room model =
     let
         userVote =
-            Dict.get user.uid event.votes
+            Dict.get user.uid room.votes
                 |> Maybe.withDefault initialVote
+
+        userName =
+            Dict.get user.uid room.voters
+                |> Maybe.withDefault initialName
+
+        roomTopic = case room.topic of
+            Nothing -> "..pick something to vote on."
+            Just t -> t
+
     in
         div []
-            [ yourVote userVote
+            [ input [class "col-xs-12 topic", value roomTopic, onInput ChangeTopic] [] 
+            , yourVote userVote
             , row
                 [ div [ class "col-xs-12 col-sm-6" ]
-                    [ projectsView userVote event.projects ]
+                    [ deckView userVote model ]
                 , div [ class "col-xs-12 col-sm-6" ]
-                    [ votesView event ]
+                    [ votesView room ]
                 ]
             ]
 
 
 yourVote : Vote -> Html msg
 yourVote userVote =
-    h3 []
-        [ case (List.map (voteN userVote) priorities) of
-            (Just _) :: (Just _) :: (Just _) :: [] ->
+    h3 [class "col-xs-12"]
+        [ case (userVote) of
+            (Just _)  ->
                 text "Thanks for voting!"
 
             _ ->
@@ -57,51 +67,47 @@ yourVote userVote =
         ]
 
 
-projectsView : Vote -> Dict String Project -> Html Msg
-projectsView userVote projects =
-    div []
-        [ h2 [] [ text "Estimate" ]
-        , div [ class "list-group" ]
-            (projects
-                |> Dict.toList
-                |> List.map (projectView userVote)
-            )
-        ]
+deckView : Vote -> Model -> Html Msg
+deckView userVote model =
+    case model.deck of
+        Success deck ->
+            div []
+                [ h2 [] [ text "Estimate" ]
+                , div [ class "list-group" ]
+                    (deck |> List.map (cardView userVote))
+                ]
+
+        Failure err ->
+            div [ class "alert alert-danger" ] [ text err ]
+
+        Loading ->
+            h2 [] [ i [] [ text "Waiting for deck data..." ] ]
+
+        NotAsked ->
+            h2 [] [ text "Initialising Deck." ]
 
 
-projectView : Vote -> ( String, Project ) -> Html Msg
-projectView userVote ( id, project ) =
+cardView : Vote -> Card  -> Html Msg
+cardView userVote card =
     div [ class "list-group-item" ]
         [ div [ class "pull-right" ]
-            [ voteButtons userVote id ]
-        , h3 [] [ text project.name ]
-        , div [] [ text project.description ]
+            [ voteButtons userVote card ]
+        , h3 [] [ text card ]
         ]
 
 
-priorityString : Priority -> Html msg
-priorityString priority =
+voteButtons : Vote -> Card  -> Html Msg
+voteButtons vote card  =
     let
-        builder n suffix =
-            span [] [ text n, sup [] [ text suffix ] ]
-    in
-        case priority of
-            First ->
-                builder "<--" ""
-
-
-voteButtons : Vote -> ProjectId -> Html Msg
-voteButtons userVote projectId =
-    let
-        ordButton priority =
+        ordButton  =
             let
                 active =
-                    case voteN userVote priority of
+                    case vote of
                         Nothing ->
                             False
 
-                        Just votedProjectId ->
-                            votedProjectId == projectId
+                        Just votedCard ->
+                            votedCard == card
             in
                 button
                     [ classList
@@ -110,45 +116,41 @@ voteButtons userVote projectId =
                         , ( "btn-info", active )
                         ]
                     , onClick
-                        (VoteFor priority
+                        (VoteFor 
                             (if active then
                                 Nothing
                              else
-                                Just projectId
+                                Just card
                             )
                         )
                     ]
-                    [ priorityString priority ]
+                    [ text card ]
     in
         div [ class "btn-group" ]
-            (List.map ordButton priorities)
+            [ ordButton ]
 
 
-tally : Dict String Vote -> Dict ProjectId Int
-tally =
+tally : Dict String Vote -> Dict Card Int
+tally votes =
     let
         increment =
             Just << (+) 1 << Maybe.withDefault 0
     in
-        Dict.foldl
-            (\_ vote acc ->
-                List.foldl
-                    (\accessor ->
-                        voteN vote accessor
-                            |> Maybe.map (flip Dict.update increment)
-                            |> Maybe.withDefault identity
-                    )
-                    acc
-                    priorities
+        List.foldl
+            (\vote acc ->
+                case vote of
+                    Just card -> Dict.update card increment acc
+                    Nothing -> acc                 
             )
             Dict.empty
+            (Dict.values votes)
 
 
-votesView : Event -> Html Msg
-votesView event =
+votesView : Room -> Html Msg
+votesView room =
     let
         voteCounts =
-            tally event.votes
+            tally room.votes
 
         maxCount =
             voteCounts
@@ -157,14 +159,14 @@ votesView event =
                 |> Maybe.withDefault 0
 
         tallied =
-            tally event.votes
+            tally room.votes
                 |> Dict.toList
 
         totalCount = voteCounts
                 |> Dict.values
                 |> List.foldl (\v acc-> v + acc) 0
 
-        showVotes = event.showVotes
+        showVotes = room.showVotes
     in
         div []
             [ h2 [] [ text ((toString totalCount) ++" Votes") ]
@@ -174,13 +176,20 @@ votesView event =
                     else
                         well
                             (tallied
-                                |> List.map (voteBar event.projects maxCount)
+                                |> List.map (voteBar maxCount)
                                 |> List.intersperse (hr [] [])
                             )
                 else
                     div [] [text "Voting in progress ..."]
-            , voteShowToggleButton event.showVotes
+            , voteShowToggleButton room.showVotes
+            , div [] [
+                    whoVotedWhat room.votes
+                ]
             ]
+
+whoVotedWhat : Dict String Vote -> Html Msg
+whoVotedWhat votes = 
+    h3 [] []
 
 voteShowToggleButton : Bool -> Html Msg
 voteShowToggleButton showing =
@@ -189,20 +198,13 @@ voteShowToggleButton showing =
             [ ( "btn", True )
             ]
         , onClick
-            ( SetVotingEnded (not showing) )
+            ( RevealResults (not showing) )
         ]
         [ text "Toggle Results" ]
 
-voteBar : Dict ProjectId Project -> Int -> ( ProjectId, Int ) -> Html msg
-voteBar projects maxCount ( projectId, voteCount ) =
+voteBar :  Int -> ( Card, Int ) -> Html msg
+voteBar  maxCount ( card, voteCount ) =
     let
-        name =
-            case Dict.get projectId projects of
-                Nothing ->
-                    projectId
-
-                Just project ->
-                    project.name
 
         width =
             (toFloat voteCount / toFloat maxCount)
@@ -213,7 +215,7 @@ voteBar projects maxCount ( projectId, voteCount ) =
     in
         div []
             [ h3 []
-                [ text name
+                [ text card
                 , text " "
                 , badge voteCount
                 ]

@@ -1,15 +1,23 @@
 {
-    "events": {
-        ".read": true,
-        ".write": false,
-        "alpha": {
-            "votes": {
-                "$uid": {
-                    ".write": "$uid === auth.uid"
-                }
-            },
-            "projects": {
-            }
+  "rooms":{
+    ".read":true,
+    ".write":false,
+    "$room":{
+        "votes":{
+           "$uid":{
+              ".write":"$uid === auth.uid"
+           }
+        },
+        "showVotes":{
+          ".write":true
+        },
+        "topic":{
+          ".write":true
         }
     }
+  },
+  "deck":{
+     ".read":true,
+     ".write":false
+   }
 }
