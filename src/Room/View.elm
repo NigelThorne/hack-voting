@@ -35,16 +35,23 @@ roomView user room model =
                 |> Maybe.withDefault initialVote
 
         userName =
-            Dict.get user.uid room.voters
-                |> Maybe.withDefault initialName
+            case Dict.get user.uid room.voters of
+                Nothing -> "Anonymous"
+                Just t -> t
+            
+            --Dict.get user.uid room.voters
+            --    |> Maybe.withDefault initialName
+
 
         roomTopic = case room.topic of
             Nothing -> "..pick something to vote on."
             Just t -> t
 
+
     in
         div []
             [ input [class "col-xs-12 topic", value roomTopic, onInput ChangeTopic] [] 
+            , input [placeholder "Your name goes here", onInput ChangeName, value userName] []
             , yourVote userVote
             , row
                 [ div [ class "col-xs-12 col-sm-6" ]
@@ -140,11 +147,26 @@ tally votes =
             (\vote acc ->
                 case vote of
                     Just card -> Dict.update card increment acc
-                    Nothing -> acc                 
+                    Nothing -> acc
             )
             Dict.empty
             (Dict.values votes)
 
+
+collectNames : Dict UserId Name -> UserId -> Vote -> Dict Card (List Name) -> Dict Card (List Name)
+collectNames names uid vote dict =
+    case vote of 
+        Just card -> 
+            case Dict.get uid names of
+                Just name -> 
+                    let
+                        array = case (Dict.get card dict) of 
+                            Just vals -> vals
+                            Nothing -> []
+                    in
+                        Dict.insert card (name :: array) dict
+                Nothing -> dict
+        Nothing -> dict
 
 votesView : Room -> Html Msg
 votesView room =
@@ -158,6 +180,9 @@ votesView room =
                 |> List.maximum
                 |> Maybe.withDefault 0
 
+        voterspercard = 
+            Dict.foldl (collectNames room.voters) Dict.empty room.votes 
+
         tallied =
             tally room.votes
                 |> Dict.toList
@@ -169,14 +194,14 @@ votesView room =
         showVotes = room.showVotes
     in
         div []
-            [ h2 [] [ text ((toString totalCount) ++" Votes") ]
+            [ h2 [] [ text ((toString totalCount) ++ " Votes") ]
             ,   if showVotes then
                     if List.isEmpty tallied then
                         empty
                     else
                         well
                             (tallied
-                                |> List.map (voteBar maxCount)
+                                |> List.map (voteBar voterspercard maxCount )
                                 |> List.intersperse (hr [] [])
                             )
                 else
@@ -202,8 +227,8 @@ voteShowToggleButton showing =
         ]
         [ text "Toggle Results" ]
 
-voteBar :  Int -> ( Card, Int ) -> Html msg
-voteBar  maxCount ( card, voteCount ) =
+voteBar :  Dict Card (List Name) -> Int -> ( Card, Int )  -> Html msg
+voteBar  names maxCount ( card, voteCount ) =
     let
 
         width =
@@ -212,6 +237,12 @@ voteBar  maxCount ( card, voteCount ) =
 
         pct n =
             toString n ++ "%"
+
+        voters = (case Dict.get card names of
+                Just all -> all
+                Nothing -> [])
+            |> List.map text
+            |> List.intersperse (text ", ")
     in
         div []
             [ h3 []
@@ -230,7 +261,7 @@ voteBar  maxCount ( card, voteCount ) =
                     , ( "transition", "width 200ms" )
                     ]
                 ]
-                []
+                voters
             ]
 
 

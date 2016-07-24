@@ -13,7 +13,7 @@ initialVote : Vote
 initialVote = Nothing
 
 initialName : Name
-initialName = Just "Anonymous"
+initialName = "Anonymous"
 
 initialTopic : Topic
 initialTopic = "Pick a Topic..."
@@ -85,7 +85,7 @@ update user msg model =
                 _ ->
                     ( model, Cmd.none )
 
-        ChangeName  name ->
+        ChangeName name ->
             case model.room of
                 Success room ->
                     ( model

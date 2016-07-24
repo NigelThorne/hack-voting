@@ -9,7 +9,7 @@ type alias Card =
     String
 
 type alias Name =
-    Maybe String
+    String
 
 type alias Topic =
     String

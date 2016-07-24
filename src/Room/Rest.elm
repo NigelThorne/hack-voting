@@ -24,7 +24,7 @@ decodeVote : Decoder Vote
 decodeVote = maybe string
 
 decodeVoter : Decoder Name
-decodeVoter = maybe string 
+decodeVoter = string 
 
 decodeCard : Decoder Card
 decodeCard = string

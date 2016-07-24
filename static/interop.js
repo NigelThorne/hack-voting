@@ -83,8 +83,20 @@
         var topic = msg,
             path = roomPath.child('topic');
 
+        votePath.set(null)
+            .catch(app.ports.voteSendError.send);
         path.set(topic)
             .catch(app.ports.voteSendError.send);
     });
 
+    var namePath = roomPath.child('voters');
+
+    app.ports.nameSend.subscribe(function (msg) {
+        var uid = msg[0],
+            name = msg[1],
+            path = namePath.child(uid);
+
+        path.set(name)
+            .catch(app.ports.nameSendError.send);
+    });
 }());
