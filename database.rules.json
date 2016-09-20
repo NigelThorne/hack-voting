@@ -1,28 +1,32 @@
 {
-  "rooms":{
-    ".read":true,
-    ".write":true
-    // "$room":{
-    //     "votes":{
-    //        "$uid":{
-    //           ".write":"$uid === auth.uid"
-    //        }
-    //     },
-    //     "voters":{
-    //        "$uid":{
-    //           ".write":"$uid === auth.uid"
-    //        }
-    //     },
-    //     "showVotes":{
-    //       ".write":true
-    //     },
-    //     "topic":{
-    //       ".write":true
-    //     }
-    // }
-  },
-  "deck":{
-     ".read":true,
-     ".write":false
-   }
+  "rules": {
+    ".read": false, 
+    ".write": false,
+    "rooms":{
+      ".read":true,
+      ".write":true
+      // "$room":{
+      //     "votes":{
+      //        "$uid":{
+      //           ".write":"$uid === auth.uid"
+      //        }
+      //     },
+      //     "voters":{
+      //        "$uid":{
+      //           ".write":"$uid === auth.uid"
+      //        }
+      //     },
+      //     "showVotes":{
+      //       ".write":true
+      //     },
+      //     "topic":{
+      //       ".write":true
+      //     }
+      // }
+    },
+    "deck":{
+       ".read":true,
+       ".write":false
+    }
+  }
 }
