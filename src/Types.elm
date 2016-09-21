@@ -13,6 +13,6 @@ type Msg
 
 
 type alias Model =
-    { auth : RemoteData Firebase.Error Firebase.User
-    , roomModel : Maybe Room.Types.Model
+    { firebase : Firebase.AuthData
+    , room : Maybe Room.Types.Model
     }

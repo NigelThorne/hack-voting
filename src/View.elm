@@ -9,35 +9,41 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Types exposing (..)
 
-
 root : Model -> Html Msg
 root model =
     div []
         [ container
             [ h1 [] [ text "Vote-o-matic" ]
-            , button
-                [ class "btn btn-primary pull-right"
-                , onClick Authenticate
-                , disabled (model.auth /= NotAsked)
-                ]
-                [ text "Log In" ]
-            , case model.auth of
+            , case model.firebase of
                 Success user ->
-                    case model.roomModel of
+                    case model.room of
                         Nothing ->
                             text "Initialising."
 
-                        Just roomModel ->
-                            Room.View.root user roomModel
+                        Just room ->
+                            Room.View.root user room
                                 |> Html.map RoomMsg
 
                 Failure err ->
                     div [ class "alert alert-danger" ] [ text err.message ]
 
                 Loading ->
-                    h2 [] [ i [] [ text "Checking your account." ] ]
+                    h2 [] [ i [] [ text "Checking your account." ] 
+                    ,   button 
+                        [ class "btn btn-primary pull-right"
+                        , onClick Authenticate
+                        ]
+                        [ text "Log In" ]
+                    ]
 
                 NotAsked ->
-                    h2 [] [ text "Log in to view and vote." ]
+                    h2 [] 
+                    [   text "Log in to view and vote."
+                    ,   button 
+                        [ class "btn btn-primary pull-right"
+                        , onClick Authenticate
+                        ]
+                        [ text "Log In" ]
+                    ]
             ]
         ]

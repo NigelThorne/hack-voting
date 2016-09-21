@@ -5,20 +5,18 @@ port module Firebase.Auth
         , Email
         , UID
         , User
+        , AuthData
         )
 
 import Exts.Maybe exposing (..)
 import Exts.RemoteData exposing (..)
 import Firebase.Common exposing (..)
 
-
 type alias Email =
     String
 
-
 type alias UID =
     String
-
 
 type alias User =
     { uid : UID
@@ -28,6 +26,9 @@ type alias User =
     , displayName : Maybe String
     , isAnonymous : Bool
     }
+
+type alias AuthData = 
+    RemoteData Error User
 
 
 port authenticate : () -> Cmd msg
@@ -39,7 +40,7 @@ port authError : (Error -> msg) -> Sub msg
 port authStateChanged : (Maybe User -> msg) -> Sub msg
 
 
-authResponse : Sub (RemoteData Error User)
+authResponse : Sub AuthData
 authResponse =
     Sub.batch
         [ authError Failure

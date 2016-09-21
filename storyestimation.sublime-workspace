@@ -1,0 +1,948 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"With",
+				"withDefault"
+			],
+			[
+				"view",
+				"viewRoom"
+			],
+			[
+				"rec",
+				"receive_session"
+			],
+			[
+				"rece",
+				"receive_shopping_list"
+			],
+			[
+				"each",
+				"each_with_object"
+			],
+			[
+				"par",
+				"parse_iis_log"
+			],
+			[
+				"qua",
+				"quantity_remaining"
+			],
+			[
+				"U",
+				"UserId"
+			],
+			[
+				"Show",
+				"showVotes"
+			],
+			[
+				"Not",
+				"not"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "src/Room/State.elm",
+			"settings":
+			{
+				"buffer_size": 2800,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"contents": "Innovation Objective: \n\nFind innovative ways to improve our development processes.\n\n1 - did nothing\n2 - did work on innovation projects but nothing improved\n3 - resolved an innovation \"Problem\" that had a marked effect.\n4 - resolved multiple innovation \"Problems\" with measureable results.\n5 - 4 + acted as a spokesman for \"Innovation\" spreading the knowedge and learnings.\n\n\n\n-------------------\n\n\nInnovation \n\n\nPOPCORN \nExperiments\n\n\n* Syptoms\n* Diagnosis  : --- \n	* Symptoms predict\n	* Test \n	* Treatment\n\n\nWhat doesn't fit ? \n==================\nA team is an organism.\n\n* S Test lags behind development\n* PD legacy backlog\n	* OS: consistent throughout the release\n	* T: skip it\n* PD inballance between dev and test effort\n	* OS: some stories are far harder to test than dev. \n	* T: Root case stories that have this shape ??\n	* T: Avoid them\n	* T: Have floating test capacity\n	* T: Automate the work so you can throw cps at it. \n\nGet Hou to Get BOND to tell us about Pairing at next SWRG meeting.\n[] It would be good to get an update from the BOND team on how \"pairing\" went.\n\n[] How to resolve retro items in sprints?\n[] How to get raised technical items into backlogs?\n\n\n\n*** Dev Test -- rotate the pairs.\n\n\n",
+			"settings":
+			{
+				"buffer_size": 1212,
+				"line_ending": "Unix",
+				"name": "Innovation Objective:"
+			}
+		},
+		{
+			"contents": "Process =>\n* Career development obectives:\n\n",
+			"settings":
+			{
+				"buffer_size": 44,
+				"line_ending": "Unix",
+				"name": "Process =>"
+			}
+		},
+		{
+			"file": "src/Room/View.elm",
+			"settings":
+			{
+				"buffer_size": 7458,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"contents": "module Deck.View exposing (root)\n\nimport Dict exposing (Dict)\nimport Room.State exposing (..)\nimport Room.Types exposing (..)\nimport Exts.Html.Bootstrap exposing (..)\nimport Exts.RemoteData exposing (..)\nimport Firebase.Auth exposing (User)\nimport Html exposing (..)\nimport Html.Attributes exposing (..)\nimport Html.Events exposing (..)\n\n-- dealing with authorization \nroot : Vote -> Model -> Html Msg\nroot userVote model =\n    case model.deck of\n        Success deck ->\n            div []\n                [ h2 [] [ text \"Estimate\" ]\n                , div [ class \"list-group\" ]\n                    (deck |> List.map (cardView userVote))\n                ]\n\n        Failure err ->\n            div [ class \"alert alert-danger\" ] [ text err ]\n\n        Loading ->\n            h2 [] [ i [] [ text \"Waiting for deck data...\" ] ]\n\n        NotAsked ->\n            h2 [] [ text \"Initialising Deck.\" ]\n\n\ncardView : Vote -> Card  -> Html Msg\ncardView userVote card =\n    div [ class \"list-group-item\" ]\n        [ div [ class \"pull-right\" ]\n            [ voteButtons userVote card ]\n        , h3 [] [ text card ]\n        ]\n\n\nvoteButtons : Vote -> Card  -> Html Msg\nvoteButtons vote card  =\n    let\n        ordButton  =\n            let\n                active =\n                    case vote of\n                        Nothing ->\n                            False\n\n                        Just votedCard ->\n                            votedCard == card\n            in\n                button\n                    [ classList\n                        [ ( \"btn\", True )\n                        , ( \"btn-default\", not active )\n                        , ( \"btn-info\", active )\n                        ]\n                    , onClick\n                        (VoteFor \n                            (if active then\n                                Nothing\n                             else\n                                Just card\n                            )\n                        )\n                    ]\n                    [ text card ]\n    in\n        div [ class \"btn-group\" ]\n            [ ordButton ]\n",
+			"file": "src/Deck/View.elm",
+			"file_size": 2085,
+			"file_write_time": 131188448540000000,
+			"settings":
+			{
+				"buffer_size": 2085,
+				"line_ending": "Unix",
+				"name": "View.erb"
+			}
+		},
+		{
+			"file": "src/Room/Ports.elm",
+			"settings":
+			{
+				"buffer_size": 1231,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"contents": "port module Deck.Ports exposing (..)\n\nimport Room.Types exposing (..)\nimport Firebase.Auth exposing (..)\nimport Firebase.Common exposing (..)\n\n------------------------------------------------------------\n\nport deck : (String -> msg) -> Sub msg\n\nport deckError : (Error -> msg) -> Sub msg\n\nport deckListen : () -> Cmd msg\n\nport deckSilence : () -> Cmd msg\n",
+			"file": "src/Deck/Ports.elm",
+			"file_size": 355,
+			"file_write_time": 131188446440000000,
+			"settings":
+			{
+				"buffer_size": 355,
+				"line_ending": "Unix",
+				"name": "Ports.elm"
+			}
+		},
+		{
+			"file": "src/View.elm",
+			"settings":
+			{
+				"buffer_size": 1269,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "src/State.elm",
+			"settings":
+			{
+				"buffer_size": 1474,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "static/interop.js",
+			"settings":
+			{
+				"buffer_size": 2946,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"contents": "all: dist/app.js dist/index.html dist/main.css dist/interop.js .tested\n\ndist/main.css: $(shell find styles -type f -name '*.less')\n	lessc styles/main.less $@\n\ndist/app.js: $(shell find src -type f -name '*.elm' -o -name '*.js') dist\n	elm-make src/App.elm --yes --warn --output=$@\n\ndist:\n	@mkdir $@\n\ndist/%.html: static/%.html dist\n	cp $< $@\n\ndist/%.js: static/%.js dist\n	cp $< $@\n\ndist/%.gif: static/%.gif dist\n	cp $< $@\n\ndist/%.png: static/%.png dist\n	cp $< $@\n\ndist/%.ico: static/%.ico dist\n	cp $< $@\n\n.tested: $(shell find src test -type f -name '*.elm' -o -name '*.js')\n	@ elm-make test/Test.elm --yes --warn --output=$(TEMPFILE)\n	@ sed -i \"\" '1s/^/window = {};/' $(TEMPFILE)\n	@ node $(TEMPFILE)\n\nTEMPFILE := $(shell mktemp \"$$TMPDIR/$$(uuidgen).js\")\n\n\nserve: all \n	@ firebase serve",
+			"file": "Makefile",
+			"file_size": 786,
+			"file_write_time": 131188458020000000,
+			"settings":
+			{
+				"buffer_size": 786,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "database.rules.json",
+			"settings":
+			{
+				"buffer_size": 616,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "src/Room/Rest.elm",
+			"settings":
+			{
+				"buffer_size": 1049,
+				"line_ending": "Unix"
+			}
+		}
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 392.0,
+		"last_filter": "elm",
+		"selected_items":
+		[
+			[
+				"elm",
+				"Set Syntax: Elm"
+			],
+			[
+				"install",
+				"Package Control: Install Package"
+			],
+			[
+				"slim",
+				"Set Syntax: Ruby Slim"
+			],
+			[
+				"elix",
+				"Set Syntax: Elixir"
+			],
+			[
+				"indent",
+				"Indentation: Reindent Lines"
+			],
+			[
+				"markdown",
+				"Set Syntax: Markdown"
+			],
+			[
+				"m",
+				"Set Syntax: Markdown"
+			],
+			[
+				"insta",
+				"Package Control: Install Package"
+			],
+			[
+				"markdo",
+				"Set Syntax: Markdown"
+			],
+			[
+				"docker",
+				"Set Syntax: Dockerfile"
+			]
+		],
+		"width": 449.0
+	},
+	"console":
+	{
+		"height": 126.0,
+		"history":
+		[
+			"import urllib.request,os,hashlib; h = '2915d1851351e5ee549c20394736b442' + '8bc59f460fa1548d1514676163dafc88'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://packagecontrol.io/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by)"
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/Users/nwt/code/storyestimation.firebaseapp.com",
+		"/Users/nwt/code/storyestimation.firebaseapp.com/src",
+		"/Users/nwt/code/storyestimation.firebaseapp.com/src/Room",
+		"/Users/nwt/code/storyestimation.firebaseapp.com/static"
+	],
+	"file_history":
+	[
+		"/Users/nwt/code/storyestimation.firebaseapp.com/dist/app.js",
+		"/Users/nwt/code/storyestimation.firebaseapp.com/src/Types.elm",
+		"/Users/nwt/code/storyestimation.firebaseapp.com/src/Room/Types.elm",
+		"/Users/nwt/code/storyestimation.firebaseapp.com/src/User/View.elm",
+		"/Users/nwt/code/storyestimation.firebaseapp.com/src/Room/View.elm",
+		"/Users/nwt/code/nibbleit.firebase.com/src/Goal/Types.elm",
+		"/Users/nwt/code/storyestimation.firebaseapp.com/src/View.elm",
+		"/Users/nwt/code/storyestimation.firebaseapp.com/src/App.elm",
+		"/Users/nwt/code/storyestimation.firebaseapp.com/database.rules.json",
+		"/Users/nwt/code/shop_by_recipe/helpers.rb",
+		"/Users/nwt/code/shop_by_recipe/app.rb",
+		"/Users/nwt/code/shop_by_recipe/routes/sessions.rb",
+		"/Users/nwt/code/shop_by_recipe/spec/features/root_spec.rb",
+		"/Users/nwt/code/shop_by_recipe/views/layout.slim",
+		"/Users/nwt/code/shop_by_recipe/spec/spec_helper.rb",
+		"/Users/nwt/code/shop_by_recipe/handlers/sass_handler.rb",
+		"/Users/nwt/code/shop_by_recipe/views/recipe.slim",
+		"/Users/nwt/code/shop_by_recipe/views/recipes.slim",
+		"/Users/nwt/code/shop_by_recipe/views/meal_plan.slim",
+		"/Users/nwt/code/shop_by_recipe/routes/meal_plans.rb",
+		"/Users/nwt/code/shop_by_recipe/handlers/coffee_handler.rb",
+		"/Users/nwt/code/shop_by_recipe/rakefile",
+		"/Users/nwt/code/shop_by_recipe/config.ru",
+		"/Users/nwt/code/shop_by_recipe/Gemfile",
+		"/Users/nwt/code/nibbleit.firebase.com/src/View.elm",
+		"/Users/nwt/code/nibbleit.firebase.com/static/interop.js",
+		"/Users/nwt/code/nibbleit.firebase.com/src/App.elm",
+		"/Users/nwt/code/nibbleit.firebase.com/src/Types.elm",
+		"/Users/nwt/code/nibbleit.firebase.com/src/State.elm",
+		"/Users/nwt/code/nibbleit.firebase.com/.firebaserc",
+		"/Users/nwt/code/nibbleit.firebase.com/data.init",
+		"/Users/nwt/Downloads/LBS-PCV-US01/W3SVC28/u_ex160804.log",
+		"/Users/nwt/Downloads/LBS-PCV-US01/W3SVC23/u_ex160804.log",
+		"/Users/nwt/Downloads/wad2/WAD/6de6dd87ce14481da793225551a0d8c6/IaaS/LBS-PCV-US01/W3SVC23/u_ex160804.log",
+		"/Users/nwt/code/nibbleit.firebase.com/database.rules.json",
+		"/Users/nwt/.pry_history",
+		"/Users/nwt/code/logs/report.rb",
+		"/Users/nwt/code/nibbleit.firebase.com/src/Room/Rest.elm",
+		"/Users/nwt/code/nibbleit.firebase.com/src/Room/View.elm",
+		"/Users/nwt/code/nibbleit.firebase.com/src/Room/Types.elm",
+		"/Users/nwt/code/nibbleit.firebase.com/src/Room/State.elm",
+		"/Users/nwt/code/nibbleit.firebase.com/src/Room/Ports.elm",
+		"/Users/nwt/Downloads/LBS-PCV-US01/W3SVC26/u_ex160804.log",
+		"/Users/nwt/Downloads/LBS-PCV-US01/W3SVC1/u_ex160804.log",
+		"/Users/nwt/code/nibbleit.firebase.com/README.md",
+		"/Users/nwt/code/flower_shop/management meeting",
+		"/Users/nwt/.bash_profile",
+		"/Users/nwt/code/flower_shop/input",
+		"/Users/nwt/code/flower_shop/process.rb",
+		"/Users/nwt/code/hack-voting/src/View.elm",
+		"/Users/nwt/code/hack-voting/database.rules.json",
+		"/Users/nwt/code/hack-voting/src/Room/View.elm",
+		"/Users/nwt/code/hack-voting/static/interop.js",
+		"/Users/nwt/code/hack-voting/elm-stuff/packages/krisajenkins/elm-exts/25.7.0/src/Exts/Html/Bootstrap/Glyphicons.elm",
+		"/Users/nwt/code/hack-voting/firebase.json",
+		"/Users/nwt/code/hack-voting/data.init",
+		"/Users/nwt/code/hack-voting/src/Room/Ports.elm",
+		"/Users/nwt/code/hack-voting/src/Room/State.elm",
+		"/Users/nwt/code/hack-voting/test/Test.elm",
+		"/Users/nwt/code/hack-voting/src/Room/Rest.elm",
+		"/Users/nwt/code/hack-voting/src/Room/Types.elm",
+		"/Users/nwt/code/hack-voting/styles/main.less",
+		"/Users/nwt/code/hack-voting/src/App.elm",
+		"/Users/nwt/code/hack-voting/elm-stuff/packages/krisajenkins/elm-exts/25.7.0/src/Exts/Html/Events.elm",
+		"/Users/nwt/code/hack-voting/elm-stuff/packages/elm-lang/virtual-dom/1.1.0/src/VirtualDom.elm",
+		"/Users/nwt/code/hack-voting/elm-stuff/packages/elm-lang/html/1.1.0/src/Html/Events.elm",
+		"/Users/nwt/code/hack-voting/elm-stuff/packages/elm-lang/core/4.0.1/src/Process.elm",
+		"/Users/nwt/code/hack-voting/dist/elm-stuff/packages/elm-lang/virtual-dom/1.1.0/src/VirtualDom.elm",
+		"/Users/nwt/code/hack-voting/dist/elm-stuff/packages/elm-lang/html/1.1.0/src/Html/Events.elm",
+		"/Users/nwt/code/hack-voting/dist/elm-stuff/packages/elm-lang/core/4.0.1/src/Process.elm",
+		"/Users/nwt/code/hack-voting/src/State.elm",
+		"/Users/nwt/code/hack-voting/elm-package.json",
+		"/Users/nwt/code/hack-voting/test/StateTest.elm",
+		"/Users/nwt/code/hack-voting/cls",
+		"/Users/nwt/code/hack-voting/src/Types.elm",
+		"/Users/nwt/code/hack-voting/dist/interop.js",
+		"/Users/nwt/code/hack-voting/static/index.html",
+		"/Users/nwt/code/hack-voting/src/Event/View.elm",
+		"/Users/nwt/code/hack-voting/.firebaserc",
+		"/Users/nwt/code/hack-voting/README.md",
+		"/Users/nwt/code/hack-voting/NOTES.org",
+		"/Users/nwt/Downloads/timetracker-c7798-export.json",
+		"/Users/nwt/code/hack-voting/src/Event/State.elm",
+		"/Users/nwt/code/hack-voting/.gitignore",
+		"/Users/nwt/code/hack-voting/dist/data.init",
+		"/Users/nwt/code/hack-voting/elm-stuff/packages/krisajenkins/elm-exts/25.7.0/src/Exts/RemoteData.elm",
+		"/Users/nwt/code/hack-voting/src/Event/Rest.elm",
+		"/Users/nwt/code/hack-voting/src/Event/Types.elm",
+		"/Users/nwt/code/hack-voting/src/Event/Ports.elm",
+		"/Users/nwt/send_email.rb",
+		"/Users/nwt/Downloads/mind-gears.svg",
+		"/Users/nwt/docker_env.sh"
+	],
+	"find":
+	{
+		"height": 35.0
+	},
+	"find_in_files":
+	{
+		"height": 93.0,
+		"where_history":
+		[
+			"/Users/nwt/code/storyestimation.firebaseapp.com,*.elm,*.html",
+			"/Users/nwt/code/storyestimation.firebaseapp.com",
+			"/Users/nwt/code/nibbleit.firebase.com/src,/Users/nwt/code/nibbleit.firebase.com/static,/Users/nwt/code/nibbleit.firebase.com/test",
+			"/Users/nwt/code/nibbleit.firebase.com,*.elm",
+			"/Users/nwt/code/nibbleit.firebase.com",
+			"/Users/nwt/code/hack-voting,*.elm",
+			"/Users/nwt/code/hack-voting",
+			"/Users/nwt/code/hack-voting,*.elm",
+			"/Users/nwt/code/hack-voting"
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"button",
+			"log",
+			"Who are you",
+			"toggle",
+			"ChangeName",
+			"user",
+			"require_relative",
+			"basic config",
+			"trays-",
+			"slide",
+			"tray",
+			"tray-loaded",
+			"ident",
+			"identify",
+			"tray",
+			"slide",
+			"tray-loaded",
+			"slides",
+			"room",
+			"Room",
+			"RoomMsg",
+			"subscriptions",
+			"options[0]",
+			"picked",
+			"Log In",
+			"Login",
+			"Log In",
+			"login",
+			"xxx",
+			"nameSend",
+			"voteSend",
+			"votingCompleteSend",
+			"topicSend",
+			"VoteFor",
+			"cardsPath",
+			"roomListen",
+			"event",
+			"eventPath",
+			"echo \\|\necho \\|\necho \\|\necho \\|\necho \\|\necho \\|\necho \\|\necho \\|\necho \\|\necho \\|\n",
+			"Increment",
+			"votingComplete",
+			"ChangeTopic",
+			"topicSend",
+			"HeardDeck",
+			"decodeDeck",
+			"voteButtons",
+			"Project",
+			"room",
+			"Room",
+			"EventMsg",
+			"eventModel",
+			"EventMsg",
+			"event",
+			"Event",
+			"event",
+			"Event",
+			"event",
+			"Event",
+			"event",
+			"Event",
+			"Vote",
+			"vote",
+			"room",
+			"Name",
+			"decodeProject",
+			"Event",
+			"Project",
+			"project",
+			"event",
+			"eventModel",
+			"        HeardRoom response ->\n            ( { model | event = RemoteData.fromResult response }\n            , Cmd.none\n            )\n\n",
+			"NotAsked",
+			"eventView",
+			"flip",
+			"voteSendError",
+			"voteEndedSend",
+			"VoteFor",
+			"voteSend",
+			"firebase.json"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			"goal",
+			"Goal",
+			"room",
+			"Room"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 10,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "src/Room/State.elm",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2800,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2800,
+								2800
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Elm Language Support/Syntaxes/Elm.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 9,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1212,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								508,
+								508
+							]
+						],
+						"settings":
+						{
+							"auto_name": "Innovation Objective:",
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 167.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 12,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 44,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								44,
+								44
+							]
+						],
+						"settings":
+						{
+							"auto_name": "Process =>",
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 11,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "src/Room/View.elm",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 7458,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								7458
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Elm Language Support/Syntaxes/Elm.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 1621.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 7,
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "src/Deck/View.elm",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2085,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2085,
+								2085
+							]
+						],
+						"settings":
+						{
+							"auto_name": "View.erb",
+							"syntax": "Packages/Elm Language Support/Syntaxes/Elm.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 6,
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "src/Room/Ports.elm",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1231,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1080,
+								1080
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Elm Language Support/Syntaxes/Elm.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 121.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 4,
+					"type": "text"
+				},
+				{
+					"buffer": 6,
+					"file": "src/Deck/Ports.elm",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 355,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								355,
+								143
+							]
+						],
+						"settings":
+						{
+							"auto_name": "Ports.elm",
+							"syntax": "Packages/Elm Language Support/Syntaxes/Elm.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 5,
+					"type": "text"
+				},
+				{
+					"buffer": 7,
+					"file": "src/View.elm",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1269,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								589,
+								589
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Elm Language Support/Syntaxes/Elm.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 49.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				},
+				{
+					"buffer": 8,
+					"file": "src/State.elm",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1474,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								325,
+								325
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Elm Language Support/Syntaxes/Elm.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 9,
+					"file": "static/interop.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2946,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								671,
+								671
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 10,
+					"file": "Makefile",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 786,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								786,
+								786
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Makefile/Makefile.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 11,
+					"file": "database.rules.json",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 616,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								608,
+								608
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JSON.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 8,
+					"type": "text"
+				},
+				{
+					"buffer": 12,
+					"file": "src/Room/Rest.elm",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1049,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								638,
+								642
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Elm Language Support/Syntaxes/Elm.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 10,
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 26.0
+	},
+	"input":
+	{
+		"height": 31.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.elm_type":
+	{
+		"height": 0.0
+	},
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "",
+	"project": "storyestimation.sublime-project",
+	"replace":
+	{
+		"height": 48.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"remote",
+				"elm-stuff/packages/krisajenkins/elm-exts/25.7.0/src/Exts/RemoteData.elm"
+			],
+			[
+				"",
+				"Dockerfile"
+			]
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 199.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}

@@ -1,3 +1,4 @@
+#!/usr/local/bin/fish
 echo \|
 echo \|
 echo \|

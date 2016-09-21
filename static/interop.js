@@ -13,14 +13,15 @@
             .catch(app.ports.authError.send);
     });
 
-
     // Looks like this doesn't work at all if it fires before the Elm
     // app has finished initialising. But why hasn't it, by this
     // stage???
-    setTimeout(function() {
+
         firebaseApp.auth()
             .onAuthStateChanged(app.ports.authStateChanged.send);
-    }, 1);
+
+    // setTimeout(function() {
+    // }, 1);
 
     var database = firebase.database();
 

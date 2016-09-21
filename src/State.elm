@@ -9,8 +9,8 @@ import Types exposing (..)
 
 initialState : ( Model, Cmd Msg )
 initialState =
-    ( { auth = Loading
-      , roomModel = Nothing
+    ( { firebase = Loading
+      , room = Nothing
       }
     , Cmd.none
     )
@@ -20,7 +20,7 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
         [ Sub.map AuthResponse Firebase.authResponse
-        , model.roomModel
+        , model.room
             |> Maybe.map (Room.subscriptions >> Sub.map RoomMsg)
             |> Maybe.withDefault Sub.none
         ]
@@ -30,24 +30,24 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Authenticate ->
-            ( { model | auth = Loading }
+            ( { model | firebase = Loading }
             , Firebase.authenticate ()
             )
 
         AuthResponse response ->
             let
                 newModel =
-                    { model | auth = response }
+                    { model | firebase = response }
             in
                 Room.initialState
-                    |> mapModel (\roomModel -> { newModel | roomModel = Just roomModel })
+                    |> mapModel (\room -> { newModel | room = Just room })
                     |> mapCmd RoomMsg
 
         RoomMsg submsg ->
-            case ( model.auth, model.roomModel ) of
-                ( Success user, Just roomModel ) ->
-                    Room.update user submsg roomModel
-                        |> mapModel (\roomModel -> { model | roomModel = Just roomModel })
+            case ( model.firebase, model.room ) of
+                ( Success user, Just room ) ->
+                    Room.update user submsg room
+                        |> mapModel (\room -> { model | room = Just room })
                         |> mapCmd RoomMsg
 
                 _ ->

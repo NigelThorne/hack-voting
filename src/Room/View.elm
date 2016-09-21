@@ -9,6 +9,7 @@ import Firebase.Auth exposing (User)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
+import String exposing (lines)
 
 -- dealing with authorization 
 root : User -> Model -> Html Msg
@@ -35,54 +36,33 @@ roomView user room model =
                 |> Maybe.withDefault initialVote
 
         userName =
-            case Dict.get user.uid room.voters of
-                Nothing -> "Anonymous"
-                Just t -> t
+            Dict.get user.uid room.voters
+                |> Maybe.withDefault initialName
             
-            --Dict.get user.uid room.voters
-            --    |> Maybe.withDefault initialName
+        roomTopic = 
+            room.topic
+                |> Maybe.withDefault "..pick something to vote on." 
 
-
-        roomTopic = case room.topic of
-            Nothing -> "..pick something to vote on."
-            Just t -> t
-
-
+        rowsCount = roomTopic |> String.lines |> List.length
     in
         div []
-            [ input [class "col-xs-12 topic", value roomTopic, onInput ChangeTopic] [] 
-            , input [placeholder "Your name goes here", onInput ChangeName, value userName] []
-            , yourVote userVote
-            , row
-                [ div [ class "col-xs-12 col-sm-6" ]
-                    [ deckView userVote model ]
-                , div [ class "col-xs-12 col-sm-6" ]
-                    [ votesView room ]
-                ]
+            [ h3 [] [text "Hi "
+                    , input [class "", placeholder "Your name goes here", onInput ChangeName, value userName] []
+                    ]
+            , h4 [] [text "How big is: "]
+            , textarea [class "topic", value roomTopic, onInput ChangeTopic, rows rowsCount, wrap "hard"] []
+            , div [class "col-12"]
+                  [ deckView userVote model ]
+            , div [class "col-12"]
+                  [ well [ votesView room ]]
             ]
-
-
-yourVote : Vote -> Html msg
-yourVote userVote =
-    h3 [class "col-xs-12"]
-        [ case (userVote) of
-            (Just _)  ->
-                text "Thanks for voting!"
-
-            _ ->
-                text "Please use your remaining votes."
-        ]
-
 
 deckView : Vote -> Model -> Html Msg
 deckView userVote model =
     case model.deck of
         Success deck ->
             div []
-                [ h2 [] [ text "Estimate" ]
-                , div [ class "list-group" ]
-                    (deck |> List.map (cardView userVote))
-                ]
+                ((h3 [] [text "Pick one: "])  :: (deck |> List.map (cardView userVote)))
 
         Failure err ->
             div [ class "alert alert-danger" ] [ text err ]
@@ -96,12 +76,7 @@ deckView userVote model =
 
 cardView : Vote -> Card  -> Html Msg
 cardView userVote card =
-    div [ class "list-group-item" ]
-        [ div [ class "pull-right" ]
-            [ voteButtons userVote card ]
-        , h3 [] [ text card ]
-        ]
-
+    voteButtons userVote card
 
 voteButtons : Vote -> Card  -> Html Msg
 voteButtons vote card  =
@@ -152,6 +127,9 @@ tally votes =
             Dict.empty
             (Dict.values votes)
 
+voters : Dict UserId Name -> UserId -> Name
+voters names id = 
+    Dict.get id names |> Maybe.withDefault "Anonymous"
 
 collectNames : Dict UserId Name -> UserId -> Vote -> Dict Card (List Name) -> Dict Card (List Name)
 collectNames names uid vote dict =
@@ -174,6 +152,12 @@ votesView room =
         voteCounts =
             tally room.votes
 
+        voterNames = 
+            room.votes 
+                |> Dict.filter (\k v -> v /= Nothing)
+                |> Dict.keys
+                |> List.map (voters room.voters)
+
         maxCount =
             voteCounts
                 |> Dict.values
@@ -193,28 +177,19 @@ votesView room =
 
         showVotes = room.showVotes
     in
-        div []
-            [ h2 [] [ text ((toString totalCount) ++ " Votes") ]
-            ,   if showVotes then
-                    if List.isEmpty tallied then
-                        empty
-                    else
-                        well
-                            (tallied
-                                |> List.map (voteBar voterspercard maxCount )
-                                |> List.intersperse (hr [] [])
-                            )
-                else
-                    div [] [text "Voting in progress ..."]
-            , voteShowToggleButton room.showVotes
-            , div [] [
-                    whoVotedWhat room.votes
-                ]
-            ]
-
-whoVotedWhat : Dict String Vote -> Html Msg
-whoVotedWhat votes = 
-    h3 [] []
+        div [classList [("votes", True)]] (List.append ( 
+                            if showVotes then
+                                tallied
+                                    |> List.map (voteBar voterspercard maxCount )
+                                    |> List.intersperse (hr [] [])
+                            else
+                                [ h2 [] [ text ((toString totalCount) ++ " votes cast ... ") ]
+                                , ul [] (voterNames 
+                                        |> List.map (\t -> li [] [text t]) )] 
+                        )
+                        [voteShowToggleButton room.showVotes]  
+                )
+            
 
 voteShowToggleButton : Bool -> Html Msg
 voteShowToggleButton showing =
@@ -225,8 +200,10 @@ voteShowToggleButton showing =
         , onClick
             ( RevealResults (not showing) )
         ]
-        [ text "Toggle Results" ]
+        [ if showing then  text "Hide votes" else text "Press when *Everyone* has finished voting!" ]
 
+
+--- results view
 voteBar :  Dict Card (List Name) -> Int -> ( Card, Int )  -> Html msg
 voteBar  names maxCount ( card, voteCount ) =
     let
@@ -263,7 +240,6 @@ voteBar  names maxCount ( card, voteCount ) =
                 ]
                 voters
             ]
-
 
 badge : Int -> Html msg
 badge n =

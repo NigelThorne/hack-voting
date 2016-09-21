@@ -30,3 +30,7 @@ dist/%.ico: static/%.ico dist
 	@ node $(TEMPFILE)
 
 TEMPFILE := $(shell mktemp "$$TMPDIR/$$(uuidgen).js")
+
+
+serve: all 
+	@ firebase serve
